@@ -14,22 +14,16 @@
         <nav class="mdc-temporary-drawer__drawer">
           <header class="mdc-temporary-drawer__header">
             <div class="mdc-temporary-drawer__header-content mdc-theme--primary-bg mdc-theme--text-primary-on-primary">
-              Header here
+              Sbacioca Tombola
             </div>
           </header>
           <nav class="mdc-temporary-drawer__content mdc-list-group">
             <div id="icon-with-text-demo" class="mdc-list">
               <a class="mdc-list-item mdc-temporary-drawer--selected" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">inbox</i>Inbox
+                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">bubble_chart</i>Gioca
               </a>
               <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">star</i>Star
-              </a>
-              <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">send</i>Sent Mail
-              </a>
-              <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">drafts</i>Drafts
+                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">history</i>Storico
               </a>
             </div>
 
@@ -37,13 +31,10 @@
 
             <div class="mdc-list">
               <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">email</i>All Mail
+                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">settings</i>Impostazioni
               </a>
               <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">delete</i>Trash
-              </a>
-              <a class="mdc-list-item" href="#">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">report</i>Spam
+                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">input</i>Carica Cartelle
               </a>
             </div>
           </nav>
@@ -88,4 +79,17 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+body {
+  height: unset;
+}
+.demo-body {
+  padding: 0;
+  margin: 0;
+  box-sizing: margin-box;
+}
+.demo-main {
+  padding-left: 16px;
+  overflow: auto;
+}
+</style>
