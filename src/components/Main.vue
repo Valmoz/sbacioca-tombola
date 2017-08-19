@@ -22,14 +22,27 @@
     </div>
     <div class="mdc-layout-grid main-grid" v-else>
       <div class="mdc-layout-grid__inner main-grid-inner">
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-10" style="display:flex;justify-content:center;align-items:center;">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-9" style="display:flex;justify-content:center;align-items:center;">
           <div class="numbers-table-container">
             <numbers-table :extractedNumbers='extractedNumbers'/>
           </div>
         </div>
-        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-2" style="display:flex;justify-content:center;align-items:center;">
+        <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-3" style="display:flex;justify-content:center;align-items:center;">
           <div>
-            <button class="mdc-button mdc-button--accent mdc-button--raised">test</button>
+            <ul class="mdc-list game-list">
+              <li class="mdc-list-item">
+                <button class="mdc-button mdc-button--accent mdc-button--raised game-form-button"
+                  @click="extractNumber">
+                  Pesca Numero
+                </button>
+              </li>
+              <li class="mdc-list-item">
+                <button class="mdc-button mdc-button--raised game-form-button"
+                  @click="shuffleNumbers">
+                  Mischia!
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -41,6 +54,10 @@
 <script>
 // import Loki from 'lokijs'
 
+import 'csshake'
+
+import $ from 'jquery'
+
 import numbersTable from './table/NumbersTable.vue'
 
 export default {
@@ -49,7 +66,7 @@ export default {
     return {
       // text: 'Click the menu icon above to open.'
       initialized: false,
-      extractedNumbers: [22, 88],
+      extractedNumbers: [],
       remainingNumbers: []
     }
   },
@@ -92,8 +109,13 @@ export default {
       var extracted = this.remainingNumbers.splice(index, 1)
       this.extractedNumbers.push(extracted[0])
     },
-    sbacioca: function () {
+    shuffleNumbers: function () {
       this.remainingNumbers = this.shuffle(this.remainingNumbers)
+      var table = $('.numbers-table-container')
+      table.addClass('shake-slow shake-constant')
+      setTimeout(function () {
+        table.removeClass('shake-slow shake-constant')
+      }, 1500)
     }
   },
   mounted () {
@@ -119,6 +141,10 @@ export default {
 .main-form-button {
   margin: auto;
   width: 20%;
+}
+.game-form-button {
+  margin: auto;
+  width: 100%;
 }
 .main-form {
   height: 100%;

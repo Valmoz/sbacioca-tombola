@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "babel-runtime": "^6.0.0",
+    "csshake": "^1.5.2",
     "fastclick": "^1.0.6",
     "fs": "0.0.1-security",
+    "jquery": "^3.2.1",
     "lokijs": "^1.5.0",
     "material-components-web": "^0.17.0",
     "material-design-icons": "^3.0.1",

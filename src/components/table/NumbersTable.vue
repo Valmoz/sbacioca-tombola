@@ -10,9 +10,11 @@
     <numbers-row :numbersArray="row8" :extractedNumbers='extractedNumbers'/>
     <numbers-row :numbersArray="row9" :extractedNumbers='extractedNumbers'/>
   </div>
+
 </template>
 
 <script>
+
 import numbersRow from './NumbersRow.vue'
 
 export default {
