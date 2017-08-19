@@ -81,7 +81,10 @@ export default {
 
 <style>
 body {
-  height: unset;
+  height: calc(100% - 64px);
+}
+#q-app {
+  height: 100%;
 }
 .demo-body {
   padding: 0;
@@ -91,5 +94,6 @@ body {
 .demo-main {
   padding-left: 16px;
   overflow: auto;
+  height: 100%
 }
 </style>

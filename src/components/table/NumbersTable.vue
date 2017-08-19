@@ -1,14 +1,14 @@
 <template>
   <div class="numbers-table mdc-grid-list mdc-grid-list--tile-aspect-1x1 mdc-grid-list--tile-gutter-8">
-    <numbers-row :numbersArray="row1"/>
-    <numbers-row :numbersArray="row2"/>
-    <numbers-row :numbersArray="row3"/>
-    <numbers-row :numbersArray="row4"/>
-    <numbers-row :numbersArray="row5"/>
-    <numbers-row :numbersArray="row6"/>
-    <numbers-row :numbersArray="row7"/>
-    <numbers-row :numbersArray="row8"/>
-    <numbers-row :numbersArray="row9"/>
+    <numbers-row :numbersArray="row1" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row2" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row3" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row4" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row5" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row6" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row7" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row8" :extractedNumbers='extractedNumbers'/>
+    <numbers-row :numbersArray="row9" :extractedNumbers='extractedNumbers'/>
   </div>
 </template>
 
@@ -17,6 +17,9 @@ import numbersRow from './NumbersRow.vue'
 
 export default {
   name: 'numbersTable',
+  props: [
+    'extractedNumbers'
+  ],
   data () {
     return {
       row1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -32,7 +35,9 @@ export default {
   },
   computed: {},
   methods: {},
-  mounted () {},
+  mounted () {
+
+  },
   beforeDestroy () {},
   components: {
     numbersRow
@@ -42,7 +47,4 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.mdc-grid-list {
-  padding-top: 5%;
-}
 </style>
