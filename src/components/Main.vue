@@ -47,6 +47,7 @@
         </div>
       </div>
     </div>
+    <number-card v-show="showNumberCard" :extractedNumber="lastExtracted" :isSmorfiaEnabled="isSmorfiaEnabled"/>
   </div>
 
 </template>
@@ -60,6 +61,8 @@ import $ from 'jquery'
 
 import numbersTable from './table/NumbersTable.vue'
 
+import numberCard from './numberCard/NumberCard.vue'
+
 export default {
   name: 'main',
   data () {
@@ -67,7 +70,10 @@ export default {
       // text: 'Click the menu icon above to open.'
       initialized: false,
       extractedNumbers: [],
-      remainingNumbers: []
+      remainingNumbers: [],
+      showNumberCard: false,
+      isSmorfiaEnabled: true,
+      lastExtracted: 0
     }
   },
   computed: {},
@@ -105,9 +111,15 @@ export default {
       return array
     },
     extractNumber: function () {
-      var index = Math.floor(Math.random() * this.remainingNumbers.length)
-      var extracted = this.remainingNumbers.splice(index, 1)
-      this.extractedNumbers.push(extracted[0])
+      var self = this
+      var index = Math.floor(Math.random() * self.remainingNumbers.length)
+      var extracted = self.remainingNumbers.splice(index, 1)
+      self.extractedNumbers.push(extracted[0])
+      self.lastExtracted = extracted[0]
+      self.showNumberCard = true
+      setTimeout(function () {
+        self.showNumberCard = false
+      }, 3000)
     },
     shuffleNumbers: function () {
       this.remainingNumbers = this.shuffle(this.remainingNumbers)
@@ -128,7 +140,8 @@ export default {
   beforeDestroy () {
   },
   components: {
-    numbersTable
+    numbersTable,
+    numberCard
   }
 }
 </script>
