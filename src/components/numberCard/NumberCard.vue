@@ -231,7 +231,7 @@ var numbersText = {
 <style scoped>
 
 .mdc-card__media {
-  background-color: var(--mdc-theme-accent);
+  background-color: var(--mdc-theme-secondary);
   height: 80%;
 }
 .mdc-card__actions {

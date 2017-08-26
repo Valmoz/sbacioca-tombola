@@ -13,7 +13,7 @@
           </li>
           <li class="mdc-list-item">
             <button class="mdc-button mdc-button--raised main-form-button"
-              @click="legacyMatch">
+              @click="legacyMatch" v-bind:disabled="isLegacyDisabled">
               Partita precedente
             </button>
           </li>
@@ -53,11 +53,15 @@
 </template>
 
 <script>
-// import Loki from 'lokijs'
+import Loki from 'lokijs'
 
 import 'csshake'
 
 import $ from 'jquery'
+
+import 'fs'
+
+import moment from 'moment'
 
 import numbersTable from './table/NumbersTable.vue'
 
@@ -68,6 +72,11 @@ export default {
   data () {
     return {
       // text: 'Click the menu icon above to open.'
+      db: {},
+      matches: {},
+      matchStart: '',
+      matchState: 'none',
+      currentMatch: {},
       initialized: false,
       extractedNumbers: [],
       remainingNumbers: [],
@@ -76,23 +85,54 @@ export default {
       lastExtracted: 0
     }
   },
-  computed: {},
+  computed: {
+    isLegacyDisabled: function () {
+      if (this.matchStart === '' || this.matchState !== 'open') {
+        return true
+      }
+      return false
+    }
+  },
   methods: {
     newMatch: function () {
+      // this.matches = this.db.getCollection('matches')
       this.extractedNumbers = []
       this.initialized = true
       var array = this.initArray()
       this.remainingNumbers = this.shuffle(array)
+      var match = {}
+      match['extractedNumbers'] = []
+      var timestamp = moment().format('YYYYMMDD-HHmmss')
+      var date = moment().format('DD MM YYYY - HH:mm:ss')
+      match['timestamp'] = timestamp
+      match['date'] = date
+      match['state'] = 'open'
+      this.currentMatch = this.matches.insert(match)
+      this.matchStart = timestamp
+      this.matchState = 'open'
+      this.db.save()
     },
     legacyMatch: function () {
-      // TODO retrieve numbers from lokijs
-      this.extractedNumbers = [22, 88]
+      var lastMatch = this.matches.findOne({timestamp: this.matchStart})
+      this.currentMatch = lastMatch
+      this.extractedNumbers = lastMatch.extractedNumbers
       this.initialized = true
+      var array = this.initLegacyArray(this.extractedNumbers)
+      this.remainingNumbers = this.shuffle(array)
     },
     initArray: function () {
       var array = []
       for (var i = 1; i <= 90; i++) {
         array.push(i)
+      }
+      return array
+    },
+    initLegacyArray: function (extractedNumbers) {
+      var array = []
+      for (var i = 1; i <= 90; i++) {
+        if (!extractedNumbers.includes(i)) {
+          array.push(i)
+        }
       }
       return array
     },
@@ -112,14 +152,22 @@ export default {
     },
     extractNumber: function () {
       var self = this
-      var index = Math.floor(Math.random() * self.remainingNumbers.length)
-      var extracted = self.remainingNumbers.splice(index, 1)
-      self.extractedNumbers.push(extracted[0])
-      self.lastExtracted = extracted[0]
-      self.showNumberCard = true
-      setTimeout(function () {
-        self.showNumberCard = false
-      }, 3000)
+      if (self.remainingNumbers.length > 0) {
+        var index = Math.floor(Math.random() * self.remainingNumbers.length)
+        var extracted = self.remainingNumbers.splice(index, 1)
+        self.extractedNumbers.push(extracted[0])
+        self.lastExtracted = extracted[0]
+        self.currentMatch.extractedNumbers = self.extractedNumbers
+        if (self.remainingNumbers.length === 0) {
+          self.currentMatch.state = 'closed'
+        }
+        self.matches.update(self.currentMatch)
+        self.db.save()
+        self.showNumberCard = true
+        setTimeout(function () {
+          self.showNumberCard = false
+        }, 3000)
+      }
     },
     shuffleNumbers: function () {
       this.remainingNumbers = this.shuffle(this.remainingNumbers)
@@ -128,10 +176,44 @@ export default {
       setTimeout(function () {
         table.removeClass('shake-slow shake-constant')
       }, 1500)
+    },
+    databaseInitialize: function () {
+      var self = this
+      this.loadCollection('matches', function (matches) {
+        self.matches = matches
+        var count = self.matches.count()
+        if (count > 0) {
+          var lastMatch = self.matches.get(count)
+          self.matchStart = lastMatch.timestamp
+          self.matchState = lastMatch.state
+        }
+      })
+    },
+    loadCollection: function (colName, callback) {
+      var self = this
+      self.db.loadDatabase({}, function () {
+        var _collection = self.db.getCollection(colName)
+
+        if (!_collection) {
+          console.log('Collection %s does not exist. Creating ...', colName)
+          _collection = self.db.addCollection(colName)
+        }
+
+        callback(_collection)
+      })
     }
   },
   mounted () {
-    // var db = new Loki('loki.json')
+    var self = this
+    // var idbAdapter = new LokiIndexedAdapter()
+    self.db = new Loki('sbacioca.json', {
+    })
+    var proto = Object.getPrototypeOf(self.db)
+    var LokiIndexedAdapter = proto.getIndexedAdapter()
+    var idbAdapter = new LokiIndexedAdapter('sbacioca')
+    self.db.persistenceAdapter = idbAdapter
+
+    self.databaseInitialize()
     // var children = db.addCollection('children')
     // children.insert({name: 'Neja', age: 21})
     // this.$store.commit('textLoaded', children.find({'name': 'Neja'}))
@@ -144,6 +226,7 @@ export default {
     numberCard
   }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
