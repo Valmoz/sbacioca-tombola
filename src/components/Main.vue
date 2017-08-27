@@ -67,12 +67,17 @@ import numbersTable from './table/NumbersTable.vue'
 
 import numberCard from './numberCard/NumberCard.vue'
 
+import { NumberChecker } from './numberChecker/NumberChecker.js'
+
 export default {
   name: 'main',
   data () {
     return {
       // text: 'Click the menu icon above to open.'
-      db: {},
+      // OPTIONS
+      isSmorfiaEnabled: false,
+      checkTableWinnings: true,
+      // END OPTIONS
       matches: {},
       matchStart: '',
       matchState: 'none',
@@ -81,7 +86,6 @@ export default {
       extractedNumbers: [],
       remainingNumbers: [],
       showNumberCard: false,
-      isSmorfiaEnabled: true,
       lastExtracted: 0
     }
   },
@@ -96,6 +100,7 @@ export default {
   methods: {
     newMatch: function () {
       // this.matches = this.db.getCollection('matches')
+      var db = this.$store.state.db
       this.extractedNumbers = []
       this.initialized = true
       var array = this.initArray()
@@ -110,7 +115,7 @@ export default {
       this.currentMatch = this.matches.insert(match)
       this.matchStart = timestamp
       this.matchState = 'open'
-      this.db.save()
+      db.save()
     },
     legacyMatch: function () {
       var lastMatch = this.matches.findOne({timestamp: this.matchStart})
@@ -151,18 +156,35 @@ export default {
       return array
     },
     extractNumber: function () {
+      var db = this.$store.state.db
       var self = this
       if (self.remainingNumbers.length > 0) {
         var index = Math.floor(Math.random() * self.remainingNumbers.length)
         var extracted = self.remainingNumbers.splice(index, 1)
         self.extractedNumbers.push(extracted[0])
         self.lastExtracted = extracted[0]
+
+        var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
+        if (check.result) {
+          console.log('CINQUINA!!! Numbers: ' + check.numbers)
+        }
+        else {
+          console.log('Left to cinquina: ' + check.missing)
+        }
+        check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
+        if (check.result) {
+          console.log('TOMBOLA!!! Numbers: ' + check.numbers)
+        }
+        else {
+          console.log('Left to tombola: ' + check.missing)
+        }
+
         self.currentMatch.extractedNumbers = self.extractedNumbers
         if (self.remainingNumbers.length === 0) {
           self.currentMatch.state = 'closed'
         }
         self.matches.update(self.currentMatch)
-        self.db.save()
+        db.save()
         self.showNumberCard = true
         setTimeout(function () {
           self.showNumberCard = false
@@ -190,13 +212,13 @@ export default {
       })
     },
     loadCollection: function (colName, callback) {
-      var self = this
-      self.db.loadDatabase({}, function () {
-        var _collection = self.db.getCollection(colName)
+      var db = this.$store.state.db
+      db.loadDatabase({}, function () {
+        var _collection = db.getCollection(colName)
 
         if (!_collection) {
           console.log('Collection %s does not exist. Creating ...', colName)
-          _collection = self.db.addCollection(colName)
+          _collection = db.addCollection(colName)
         }
 
         callback(_collection)
@@ -206,14 +228,16 @@ export default {
   mounted () {
     var self = this
     // var idbAdapter = new LokiIndexedAdapter()
-    self.db = new Loki('sbacioca.json', {
+    var db = new Loki('sbacioca.json', {
     })
-    var proto = Object.getPrototypeOf(self.db)
+    this.$store.commit('dbInitialized', db)
+    var proto = Object.getPrototypeOf(db)
     var LokiIndexedAdapter = proto.getIndexedAdapter()
     var idbAdapter = new LokiIndexedAdapter('sbacioca')
-    self.db.persistenceAdapter = idbAdapter
+    db.persistenceAdapter = idbAdapter
 
     self.databaseInitialize()
+
     // var children = db.addCollection('children')
     // children.insert({name: 'Neja', age: 21})
     // this.$store.commit('textLoaded', children.find({'name': 'Neja'}))

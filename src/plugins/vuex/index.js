@@ -5,11 +5,11 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    text: ''
+    db: {}
   },
   mutations: {
-    textLoaded (state, text) {
-      state.text = text
+    dbInitialized (state, db) {
+      state.db = db
     }
   }
 })
