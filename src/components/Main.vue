@@ -42,6 +42,12 @@
                   Mischia!
                 </button>
               </li>
+              <li class="mdc-list-item">
+                <button class="mdc-button game-form-button"
+                  @click="switchPhase">
+                  Passa alle Tombole
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -81,6 +87,7 @@ export default {
       matches: {},
       matchStart: '',
       matchState: 'none',
+      matchPhase: 0,
       currentMatch: {},
       initialized: false,
       extractedNumbers: [],
@@ -108,13 +115,15 @@ export default {
       var match = {}
       match['extractedNumbers'] = []
       var timestamp = moment().format('YYYYMMDD-HHmmss')
-      var date = moment().format('DD MM YYYY - HH:mm:ss')
+      var date = moment().format('DD/MM/YYYY - HH:mm:ss')
       match['timestamp'] = timestamp
       match['date'] = date
       match['state'] = 'open'
+      match['phase'] = 1
       this.currentMatch = this.matches.insert(match)
       this.matchStart = timestamp
       this.matchState = 'open'
+      this.matchPhase = 1
       db.save()
     },
     legacyMatch: function () {
@@ -164,19 +173,23 @@ export default {
         self.extractedNumbers.push(extracted[0])
         self.lastExtracted = extracted[0]
 
-        var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
-        if (check.result) {
-          console.log('CINQUINA!!! Numbers: ' + check.numbers)
+        if (self.matchPhase === 1) {
+          var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
+          if (check.result) {
+            console.log('CINQUINA!!! Numbers: ' + check.numbers)
+          }
+          else {
+            console.log('Left to cinquina: ' + check.missing)
+          }
         }
         else {
-          console.log('Left to cinquina: ' + check.missing)
-        }
-        check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
-        if (check.result) {
-          console.log('TOMBOLA!!! Numbers: ' + check.numbers)
-        }
-        else {
-          console.log('Left to tombola: ' + check.missing)
+          check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
+          if (check.result) {
+            console.log('TOMBOLA!!! Numbers: ' + check.numbers)
+          }
+          else {
+            console.log('Left to tombola: ' + check.missing)
+          }
         }
 
         self.currentMatch.extractedNumbers = self.extractedNumbers
@@ -199,6 +212,15 @@ export default {
         table.removeClass('shake-slow shake-constant')
       }, 1500)
     },
+    switchPhase: function () {
+      // SHOW DIALOG HERE https://material.io/components/web/catalog/dialogs/
+      // USE THE SAME BUTTON TO MANAGE MATCH CLOSURE
+      var db = this.$store.state.db
+      this.matchPhase = 2
+      self.currentMatch.matchPhase = 2
+      self.matches.update(self.currentMatch)
+      db.save()
+    },
     databaseInitialize: function () {
       var self = this
       this.loadCollection('matches', function (matches) {
@@ -208,6 +230,7 @@ export default {
           var lastMatch = self.matches.get(count)
           self.matchStart = lastMatch.timestamp
           self.matchState = lastMatch.state
+          self.matchPhase = lastMatch.matchPhase
         }
       })
     },
