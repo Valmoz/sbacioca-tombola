@@ -10,14 +10,22 @@
           <input id="file-input-file" class="none" type="file" @change="upload"/>
         </label>
       </div>
-      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-10">
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-9">
         <h1 class="mdc-typography--headline file-input-status">{{fileStatus}}</h1>
       </div>
       <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-1">
         <button class="mdc-fab mdc-fab--plain material-icons file-output-fab" aria-label="File Output"
-          @click="download">
+          v-if="isLoaded" @click="download">
           <span class="mdc-fab__icon">
             file_download
+          </span>
+        </button>
+      </div>
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-1">
+        <button class="mdc-fab mdc-fab--plain material-icons file-delete-fab" aria-label="File Delete"
+          v-if="isLoaded" @click="deleteColl">
+          <span class="mdc-fab__icon">
+            delete
           </span>
         </button>
       </div>
@@ -52,12 +60,15 @@ export default {
   name: 'load',
   data () {
     return {
-      tickets: {},
-      ticketsCollection: {},
+      tickets: [],
       fileStatus: 'Carica un file...'
     }
   },
-  computed: {},
+  computed: {
+    isLoaded: function () {
+      return this.tickets.length > 0
+    }
+  },
   methods: {
     upload: function () {
       // var self = this
@@ -103,7 +114,6 @@ export default {
 
         Papa.parse(f, {
           complete: function (results) {
-            console.log(results)
             self.tickets = results.data
             self.saveTickets(results.data)
           }
@@ -111,29 +121,23 @@ export default {
       }
     },
     download: function () {
-      console.log(this.loadedFile)
       var timestamp = moment().format('YYYYMMDD')
-      var csv = Papa.unparse(this.loadedFile)
+      var csv = Papa.unparse(this.tickets)
       var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'})
       var fileName = 'tombola_tickets_' + timestamp + '.csv'
       FileSaver.saveAs(blob, fileName)
     },
-    loadCollection: function (colName, callback) {
+    deleteColl: function () {
       var db = this.$store.state.db
-      console.log(db)
-      console.log(colName)
-      db.loadDatabase({}, function () {
-        var _collection = db.getCollection(colName)
-
-        if (!_collection) {
-          console.log('Collection %s does not exist. Creating ...', colName)
-          _collection = db.addCollection(colName)
-        }
-
-        callback(_collection)
-      })
+      var collection = this.$store.state.tickets
+      this.tickets = []
+      collection.clear()
+      db.save()
     },
     saveTickets: function (tickets) {
+      var db = this.$store.state.db
+      var collection = this.$store.state.tickets
+
       var count = tickets.length
 
       for (var i = 0; i < count; i++) {
@@ -144,37 +148,54 @@ export default {
         dbTicket['name'] = ticket[0]
         dbTicket['array'] = ticket.slice(1)
 
-        this.ticketsCollection.insert(dbTicket)
+        collection.insert(dbTicket)
       }
 
-      this.$store.state.db.save()
+      db.save()
     }
   },
   mounted () {
-    console.log('aaa')
     var self = this
 
     var fab = $('.file-input-fab').get(0)
     MDCRipple.attachTo(fab)
 
-    this.loadCollection('tickets', function (tickets) {
-      console.log('aab')
-      console.log(tickets)
-      self.ticketsCollection = tickets
+    var interval = setInterval(function () {
+      var collection = self.$store.state.tickets
+      if (collection) {
+        var loadedTickets = []
 
-      var loadedTickets = []
+        var count = collection.count()
+        var content = collection.data
+        for (var i = 0; i < count; i++) {
+          var ticket = content[i]
+          var dbTicket = [ticket['name']].concat(ticket['array'])
+          loadedTickets.push(dbTicket)
+        }
 
-      var count = self.ticketsCollection.count()
-      for (var i = 0; i < count; i++) {
-        var ticket = self.ticketsCollection.get(i)
-        var dbTicket = []
-        dbTicket.push(ticket['name'])
-        dbTicket.concat(ticket['array'])
-        loadedTickets.push(dbTicket)
+        self.tickets = loadedTickets
+        clearInterval(interval)
       }
+    }, 1000)
 
-      self.tickets = loadedTickets
-    })
+    // this.loadCollection('tickets', function (tickets) {
+    //   console.log('aab')
+    //   console.log(tickets)
+    //   self.ticketsCollection = tickets
+    //
+    //   var loadedTickets = []
+    //
+    //   var count = self.ticketsCollection.count()
+    //   for (var i = 0; i < count; i++) {
+    //     var ticket = self.ticketsCollection.get(i)
+    //     var dbTicket = []
+    //     dbTicket.push(ticket['name'])
+    //     dbTicket.concat(ticket['array'])
+    //     loadedTickets.push(dbTicket)
+    //   }
+    //
+    //   self.tickets = loadedTickets
+    // })
   },
   beforeDestroy () {},
   components: {
