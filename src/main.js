@@ -9,14 +9,19 @@ require(`quasar/dist/quasar.${__THEME}.css`)
 import Vue from 'vue'
 import Quasar from 'quasar'
 import router from './router'
+import {sync} from 'vuex-router-sync'
+import store from './plugins/vuex'
 
 Vue.use(Quasar) // Install Quasar Framework
+
+sync(store, router)
 
 Quasar.start(() => {
   /* eslint-disable no-new */
   new Vue({
     el: '#q-app',
     router,
+    store,
     render: h => h(require('./App'))
   })
 })

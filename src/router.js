@@ -21,7 +21,8 @@ export default new VueRouter({
    */
 
   routes: [
-    { path: '/', component: load('Index') }, // Default
+    { path: '/', component: load('Main'), name: 'main' }, // Default
+    { path: '/load', component: load('Load'), name: 'load' }, // Load
     { path: '*', component: load('Error404') } // Not found
   ]
 })
