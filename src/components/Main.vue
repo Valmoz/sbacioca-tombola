@@ -59,8 +59,6 @@
 </template>
 
 <script>
-import Loki from 'lokijs'
-
 import 'csshake'
 
 import $ from 'jquery'
@@ -84,7 +82,6 @@ export default {
       isSmorfiaEnabled: false,
       checkTableWinnings: true,
       // END OPTIONS
-      matches: {},
       matchStart: '',
       matchState: 'none',
       matchPhase: 0,
@@ -120,14 +117,16 @@ export default {
       match['date'] = date
       match['state'] = 'open'
       match['phase'] = 1
-      this.currentMatch = this.matches.insert(match)
+      var matches = this.$store.state.matches
+      this.currentMatch = matches.insert(match)
       this.matchStart = timestamp
       this.matchState = 'open'
       this.matchPhase = 1
       db.save()
     },
     legacyMatch: function () {
-      var lastMatch = this.matches.findOne({timestamp: this.matchStart})
+      var matches = this.$store.state.matches
+      var lastMatch = matches.findOne({timestamp: this.matchStart})
       this.currentMatch = lastMatch
       this.extractedNumbers = lastMatch.extractedNumbers
       this.initialized = true
@@ -166,6 +165,7 @@ export default {
     },
     extractNumber: function () {
       var db = this.$store.state.db
+      var matches = this.$store.state.matches
       var self = this
       if (self.remainingNumbers.length > 0) {
         var index = Math.floor(Math.random() * self.remainingNumbers.length)
@@ -196,7 +196,7 @@ export default {
         if (self.remainingNumbers.length === 0) {
           self.currentMatch.state = 'closed'
         }
-        self.matches.update(self.currentMatch)
+        matches.update(self.currentMatch)
         db.save()
         self.showNumberCard = true
         setTimeout(function () {
@@ -213,61 +213,33 @@ export default {
       }, 1500)
     },
     switchPhase: function () {
-      // SHOW DIALOG HERE https://material.io/components/web/catalog/dialogs/
+      // TODO SHOW DIALOG HERE https://material.io/components/web/catalog/dialogs/
       // USE THE SAME BUTTON TO MANAGE MATCH CLOSURE
       var db = this.$store.state.db
+      var matches = this.$store.state.matches
       this.matchPhase = 2
       self.currentMatch.matchPhase = 2
-      self.matches.update(self.currentMatch)
+      matches.update(self.currentMatch)
       db.save()
-    },
-    databaseInitialize: function () {
-      var self = this
-      this.loadCollection('matches', function (matches) {
-        self.matches = matches
-        var count = self.matches.count()
-        if (count > 0) {
-          var lastMatch = self.matches.get(count)
-          self.matchStart = lastMatch.timestamp
-          self.matchState = lastMatch.state
-          self.matchPhase = lastMatch.matchPhase
-        }
-      })
-    },
-    loadCollection: function (colName, callback) {
-      var db = this.$store.state.db
-      db.loadDatabase({}, function () {
-        var _collection = db.getCollection(colName)
-
-        if (!_collection) {
-          console.log('Collection %s does not exist. Creating ...', colName)
-          _collection = db.addCollection(colName)
-        }
-
-        callback(_collection)
-      })
     }
   },
   mounted () {
     var self = this
-    // var idbAdapter = new LokiIndexedAdapter()
-    var db = new Loki('sbacioca.json', {
-    })
-    this.$store.commit('dbInitialized', db)
-    var proto = Object.getPrototypeOf(db)
-    var LokiIndexedAdapter = proto.getIndexedAdapter()
-    var idbAdapter = new LokiIndexedAdapter('sbacioca')
-    db.persistenceAdapter = idbAdapter
-
-    self.databaseInitialize()
-
-    // var children = db.addCollection('children')
-    // children.insert({name: 'Neja', age: 21})
-    // this.$store.commit('textLoaded', children.find({'name': 'Neja'}))
-    // this.text = this.$store.state.text[0].name
+    var interval = setInterval(function () {
+      var matches = self.$store.state.matches
+      if (matches) {
+        var count = matches.count()
+        if (count > 0) {
+          var lastMatch = matches.get(count)
+          self.matchStart = lastMatch.timestamp
+          self.matchState = lastMatch.state
+          self.matchPhase = lastMatch.matchPhase
+        }
+        clearInterval(interval)
+      }
+    }, 1000)
   },
-  beforeDestroy () {
-  },
+  beforeDestroy () {},
   components: {
     numbersTable,
     numberCard

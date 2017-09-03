@@ -5,11 +5,19 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    db: {}
+    db: {},
+    matches: {},
+    tickets: {}
   },
   mutations: {
     dbInitialized (state, db) {
       state.db = db
+    },
+    matchesLoaded (state, matches) {
+      state.matches = matches
+    },
+    ticketsLoaded (state, tickets) {
+      state.tickets = tickets
     }
   }
 })

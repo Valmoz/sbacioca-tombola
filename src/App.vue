@@ -2,60 +2,56 @@
   <!-- Don't drop "q-app" class -->
   <div id="q-app">
     <div class="mdc-toolbar mdc-toolbar--fixed">
-        <div class="mdc-toolbar__row">
-          <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
-            <button class="app-menu material-icons mdc-toolbar__icon--menu">menu</button>
-            <span class="mdc-toolbar__title catalog-title">Sbacioca! Tombola</span>
-          </section>
-        </div>
+      <div class="mdc-toolbar__row">
+        <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+          <button class="app-menu material-icons mdc-toolbar__icon--menu">menu</button>
+          <span class="mdc-toolbar__title catalog-title">Sbacioca! Tombola</span>
+        </section>
       </div>
+    </div>
 
-      <aside class="mdc-temporary-drawer">
-        <nav class="mdc-temporary-drawer__drawer">
-          <header class="mdc-temporary-drawer__header">
-            <div class="mdc-temporary-drawer__header-content mdc-theme--primary-bg mdc-theme--text-primary-on-primary">
-              Sbacioca! Tombola
-            </div>
-          </header>
-          <nav class="mdc-temporary-drawer__content mdc-list-group">
-            <div class="mdc-list">
-              <a class="mdc-list-item" href="#"  @click="mainNav($event)"
-                v-bind:class="{ 'mdc-temporary-drawer--selected': isMain }">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">bubble_chart</i>Gioca
-              </a>
-              <a class="mdc-list-item" href="#" @click="historyNav($event)"
-                v-bind:class="{ 'mdc-temporary-drawer--selected': isHistory }">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">history</i>Storico
-              </a>
-            </div>
+    <aside class="mdc-temporary-drawer">
+      <nav class="mdc-temporary-drawer__drawer">
+        <header class="mdc-temporary-drawer__header">
+          <div class="mdc-temporary-drawer__header-content mdc-theme--primary-bg mdc-theme--text-primary-on-primary">
+            Sbacioca! Tombola
+          </div>
+        </header>
+        <nav class="mdc-temporary-drawer__content mdc-list-group">
+          <div class="mdc-list">
+            <a class="mdc-list-item" href="#"  @click="mainNav($event)"
+              v-bind:class="{ 'mdc-temporary-drawer--selected': isMain }">
+              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">bubble_chart</i>Gioca
+            </a>
+            <a class="mdc-list-item" href="#" @click="historyNav($event)"
+              v-bind:class="{ 'mdc-temporary-drawer--selected': isHistory }">
+              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">history</i>Storico
+            </a>
+          </div>
 
-            <hr class="mdc-list-divider">
+          <hr class="mdc-list-divider">
 
-            <div class="mdc-list">
-              <a class="mdc-list-item" href="#" @click="settingsNav($event)"
-                v-bind:class="{ 'mdc-temporary-drawer--selected': isSettings }">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">settings</i>Impostazioni
-              </a>
-              <a class="mdc-list-item" href="#" @click="loadNav($event)"
-                v-bind:class="{ 'mdc-temporary-drawer--selected': isLoad }">
-                <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">input</i>Carica Cartelle
-              </a>
-            </div>
-          </nav>
+          <div class="mdc-list">
+            <a class="mdc-list-item" href="#" @click="settingsNav($event)"
+              v-bind:class="{ 'mdc-temporary-drawer--selected': isSettings }">
+              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">settings</i>Impostazioni
+            </a>
+            <a class="mdc-list-item" href="#" @click="loadNav($event)"
+              v-bind:class="{ 'mdc-temporary-drawer--selected': isLoad }">
+              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">input</i>Carica Cartelle
+            </a>
+          </div>
         </nav>
-      </aside>
-      <main class="app-main mdc-toolbar-fixed-adjust">
-        <router-view></router-view>
-      </main>
-
-
-
-
-
+      </nav>
+    </aside>
+    <main class="app-main mdc-toolbar-fixed-adjust">
+      <router-view></router-view>
+    </main>
   </div>
 </template>
 
 <script>
+import Loki from 'lokijs'
 
 import {MDCTemporaryDrawer} from '@material/drawer'
 
@@ -99,6 +95,35 @@ export default {
       event.preventDefault()
       this.$router.push({ name: 'load' })
       this.drawer.open = false
+    },
+    databaseInitialize: function () {
+      var self = this
+      var db = this.$store.state.db
+      db.loadDatabase({}, function () {
+        self.loadCollection('tickets', db, function (tickets) {
+          self.$store.commit('ticketsLoaded', tickets)
+        })
+        self.loadCollection('matches', db, function (matches) {
+          self.$store.commit('matchesLoaded', matches)
+          // var count = self.matches.count()
+          // if (count > 0) {
+          //   var lastMatch = self.matches.get(count)
+          //   self.matchStart = lastMatch.timestamp
+          //   self.matchState = lastMatch.state
+          //   self.matchPhase = lastMatch.matchPhase
+          // }
+        })
+      })
+    },
+    loadCollection: function (colName, db, callback) {
+      var _collection = db.getCollection(colName)
+
+      if (!_collection) {
+        console.log('Collection %s does not exist. Creating ...', colName)
+        _collection = db.addCollection(colName)
+      }
+
+      callback(_collection)
     }
   },
   mounted () {
@@ -114,6 +139,17 @@ export default {
     drawerEl.addEventListener('MDCTemporaryDrawer:close', function () {
       console.log('Received MDCTemporaryDrawer:close')
     })
+
+    var db = new Loki('sbacioca.json', {
+    })
+
+    this.$store.commit('dbInitialized', db)
+    var proto = Object.getPrototypeOf(db)
+    var LokiIndexedAdapter = proto.getIndexedAdapter()
+    var idbAdapter = new LokiIndexedAdapter('sbacioca')
+    db.persistenceAdapter = idbAdapter
+
+    this.databaseInitialize()
   },
   beforeDestroy () {
   }
