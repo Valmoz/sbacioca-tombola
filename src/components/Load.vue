@@ -2,32 +2,39 @@
 <div class="load-component">
   <div class="file-input-container mdc-layout-grid">
     <div class="file-input mdc-layout-grid__inner">
-      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-1">
-        <label class="mdc-fab material-icons file-input-fab" aria-label="File Input">
-          <span class="mdc-fab__icon">
+      <div class="mdc-layout-grid__cell"
+        v-bind:class="[ isLoaded ? 'mdc-layout-grid__cell--span-4' : 'mdc-layout-grid__cell--span-12' ]">
+        <label class="mdc-button mdc-button--raised file-input-button" aria-label="File Input">
+          <div class="material-icons label-icon">
             file_upload
-          </span>
+          </div>
+          <div>
+            Carica le cartelle
+          </div>
           <input id="file-input-file" class="none" type="file" @change="upload"/>
         </label>
       </div>
-      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-9">
-        <h1 class="mdc-typography--headline file-input-status">{{fileStatus}}</h1>
-      </div>
-      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-1">
-        <button class="mdc-fab mdc-fab--plain material-icons file-output-fab" aria-label="File Output"
-          v-if="isLoaded" @click="download">
-          <span class="mdc-fab__icon">
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4" v-if="isLoaded">
+        <label class="mdc-button mdc-button--raised file-input-button" aria-label="File Ouput"
+          @click="download">
+          <div class="material-icons label-icon">
             file_download
-          </span>
-        </button>
+          </div>
+          <div>
+            Salva le cartelle su CSV
+          </div>
+        </label>
       </div>
-      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-1">
-        <button class="mdc-fab mdc-fab--plain material-icons file-delete-fab" aria-label="File Delete"
-          v-if="isLoaded" @click="deleteColl">
-          <span class="mdc-fab__icon">
+      <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-4" v-if="isLoaded">
+        <label class="mdc-button mdc-button--raised file-delete-button" aria-label="File Delete"
+          @click="deleteColl">
+          <div class="material-icons label-icon">
             delete
-          </span>
-        </button>
+          </div>
+          <div>
+            Cancella le cartelle
+          </div>
+        </label>
       </div>
     </div>
   </div>
@@ -44,7 +51,7 @@
 </template>
 
 <script>
-import {MDCRipple} from '@material/ripple'
+// import {MDCRipple} from '@material/ripple'
 
 import $ from 'jquery'
 
@@ -96,7 +103,6 @@ export default {
       //
       //   reader.readAsText(f)
       // }
-
       var self = this
       var fileInput = $('#file-input-file').get(0)
       var files = fileInput.files // FileList object
@@ -133,16 +139,16 @@ export default {
       this.tickets = []
       collection.clear()
       db.save()
+      $('#file-input-file').val('')
     },
     saveTickets: function (tickets) {
       var db = this.$store.state.db
       var collection = this.$store.state.tickets
-
+      collection.clear()
+      db.save()
       var count = tickets.length
-
       for (var i = 0; i < count; i++) {
         var ticket = tickets[i]
-
         var dbTicket = {}
 
         dbTicket['name'] = ticket[0]
@@ -150,15 +156,14 @@ export default {
 
         collection.insert(dbTicket)
       }
-
       db.save()
     }
   },
   mounted () {
     var self = this
 
-    var fab = $('.file-input-fab').get(0)
-    MDCRipple.attachTo(fab)
+    // var fab = $('.file-input-fab').get(0)
+    // MDCRipple.attachTo(fab)
 
     var interval = setInterval(function () {
       var collection = self.$store.state.tickets
@@ -209,10 +214,24 @@ export default {
 .none {
   display: none;
 }
-label span  {
-  line-height: 56px;
+span {
+  display: inline-block;
 }
-.file-input-status {
-  margin: 0;
+.mdc-button {
+  width: 270px;
+}
+div.label-icon {
+  line-height: 38px;
+  float: left;
+}
+.mdc-button {
+  height: 38px;
+  margin-left: auto;
+  margin-right: auto;
+  display: table;
+}
+.load-component {
+  width: 100%;
+  display: table;
 }
 </style>
