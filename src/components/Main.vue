@@ -51,7 +51,8 @@
         </div>
       </div>
     </div>
-    <number-card v-show="showNumberCard" :extractedNumber="lastExtracted" :isSmorfiaEnabled="isSmorfiaEnabled"/>
+    <number-card v-show="showNumberCard" @close="closeCard"
+      :extractedNumber="lastExtracted" :isSmorfiaEnabled="isSmorfiaEnabled"/>
     <div class="mdc-snackbar"
       aria-live="assertive"
       aria-atomic="true"
@@ -80,7 +81,7 @@ import numberCard from './numberCard/NumberCard.vue'
 
 import { NumberChecker } from './numberChecker/NumberChecker.js'
 
-import {MDCSnackbar} from '@material/snackbar'
+import { MDCSnackbar } from '@material/snackbar'
 
 export default {
   name: 'main',
@@ -100,7 +101,8 @@ export default {
       remainingNumbers: [],
       showNumberCard: false,
       lastExtracted: 0,
-      snackbar: {}
+      snackbar: {},
+      cardTimeout: {}
     }
   },
   computed: {
@@ -193,11 +195,18 @@ export default {
         matches.update(self.currentMatch)
         db.save()
         self.showNumberCard = true
-        setTimeout(function () {
-          self.showNumberCard = false
-          self.checkTickets()
+        self.cardTimeout = setTimeout(function () {
+          self.closeAndCheck()
         }, 3000)
       }
+    },
+    closeCard: function () {
+      clearTimeout(this.cardTimeout)
+      this.closeAndCheck()
+    },
+    closeAndCheck: function () {
+      this.showNumberCard = false
+      this.checkTickets()
     },
     shuffleNumbers: function () {
       this.remainingNumbers = this.shuffle(this.remainingNumbers)

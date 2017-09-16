@@ -1,5 +1,5 @@
 <template>
-  <div class="mdc-card demo-card demo-card--small mdc-elevation--z24">
+  <div class="mdc-card demo-card demo-card--small mdc-elevation--z24" @click="closeCard">
     <section class="mdc-card__media" style="display:flex;justify-content:center;align-items:center;">
       <h1 class="mdc-card__title mdc-card__title--large extracted-number">{{extractedNumber}}</h1>
     </section>
@@ -30,6 +30,9 @@ export default {
       else {
         return numbersText[number]
       }
+    },
+    closeCard: function () {
+      this.$emit('close')
     }
   },
   mounted () {
