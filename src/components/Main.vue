@@ -1,7 +1,5 @@
 <template>
   <div class="main-component">
-    <!--<h1 class="mdc-typography- -display1">Temporary Drawer</h1>
-    <p class="mdc-typography- -body1">{{text}}</p>-->
     <div class="main-form" v-if="!initialized" style="display:flex;justify-content:center;align-items:center;">
       <div class="main-form-inner">
         <ul class="mdc-list main-list">
@@ -54,6 +52,15 @@
       </div>
     </div>
     <number-card v-show="showNumberCard" :extractedNumber="lastExtracted" :isSmorfiaEnabled="isSmorfiaEnabled"/>
+    <div class="mdc-snackbar"
+      aria-live="assertive"
+      aria-atomic="true"
+      aria-hidden="true">
+      <div class="mdc-snackbar__text"></div>
+      <div class="mdc-snackbar__action-wrapper">
+        <button type="button" class="mdc-button mdc-snackbar__action-button"></button>
+      </div>
+    </div>
   </div>
 
 </template>
@@ -73,6 +80,8 @@ import numberCard from './numberCard/NumberCard.vue'
 
 import { NumberChecker } from './numberChecker/NumberChecker.js'
 
+import {MDCSnackbar} from '@material/snackbar'
+
 export default {
   name: 'main',
   data () {
@@ -90,7 +99,8 @@ export default {
       extractedNumbers: [],
       remainingNumbers: [],
       showNumberCard: false,
-      lastExtracted: 0
+      lastExtracted: 0,
+      snackbar: {}
     }
   },
   computed: {
@@ -129,6 +139,9 @@ export default {
       var lastMatch = matches.findOne({timestamp: this.matchStart})
       this.currentMatch = lastMatch
       this.extractedNumbers = lastMatch.extractedNumbers
+      this.matchStart = lastMatch.timestamp
+      this.matchState = lastMatch.state
+      this.matchPhase = lastMatch.phase
       this.initialized = true
       var array = this.initLegacyArray(this.extractedNumbers)
       this.remainingNumbers = this.shuffle(array)
@@ -173,24 +186,7 @@ export default {
         self.extractedNumbers.push(extracted[0])
         self.lastExtracted = extracted[0]
 
-        if (self.matchPhase === 1) {
-          var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
-          if (check.result) {
-            console.log('CINQUINA!!! Numbers: ' + check.numbers)
-          }
-          else {
-            console.log('Left to cinquina: ' + check.missing)
-          }
-        }
-        else {
-          check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
-          if (check.result) {
-            console.log('TOMBOLA!!! Numbers: ' + check.numbers)
-          }
-          else {
-            console.log('Left to tombola: ' + check.missing)
-          }
-        }
+
 
         self.currentMatch.extractedNumbers = self.extractedNumbers
         if (self.remainingNumbers.length === 0) {
@@ -201,6 +197,7 @@ export default {
         self.showNumberCard = true
         setTimeout(function () {
           self.showNumberCard = false
+          self.checkTickets()
         }, 3000)
       }
     },
@@ -221,10 +218,40 @@ export default {
       self.currentMatch.matchPhase = 2
       matches.update(self.currentMatch)
       db.save()
+    },
+    checkTickets: function () {
+      var self = this
+      if (self.matchPhase === 1) {
+        var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
+        if (check.result) {
+          console.log('CINQUINA!!! Numbers: ' + check.numbers)
+          var dataObj = {
+            message: 'CINQUINA!!!',
+            actionText: 'Vedi',
+            actionHandler: function () {
+              console.log('my cool function')
+            }
+          }
+          self.snackbar.show(dataObj)
+        }
+        else {
+          console.log('Left to cinquina: ' + check.missing)
+        }
+      }
+      else {
+        check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
+        if (check.result) {
+          console.log('TOMBOLA!!! Numbers: ' + check.numbers)
+        }
+        else {
+          console.log('Left to tombola: ' + check.missing)
+        }
+      }
     }
   },
   mounted () {
     var self = this
+    self.snackbar = new MDCSnackbar(document.querySelector('.mdc-snackbar'))
     var interval = setInterval(function () {
       var matches = self.$store.state.matches
       if (matches) {
