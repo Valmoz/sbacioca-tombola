@@ -186,8 +186,6 @@ export default {
         self.extractedNumbers.push(extracted[0])
         self.lastExtracted = extracted[0]
 
-
-
         self.currentMatch.extractedNumbers = self.extractedNumbers
         if (self.remainingNumbers.length === 0) {
           self.currentMatch.state = 'closed'
