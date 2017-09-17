@@ -1,4 +1,47 @@
 export class NumberChecker {
+  static prepareTickets (ticketState, extractedNumbers) {
+    for (var i = 0; i < ticketState.length; i++) {
+      var array = ticketState[i]['array']
+      var firstArray = array.slice(0, 5)
+      var secondArray = array.slice(5, 10)
+      var thirdArray = array.slice(10, 15)
+      var count1 = missingNumbers(firstArray, extractedNumbers)
+      var count2 = missingNumbers(secondArray, extractedNumbers)
+      var count3 = missingNumbers(thirdArray, extractedNumbers)
+      ticketState[i]['firstCount'] = count1
+      ticketState[i]['secondCount'] = count2
+      ticketState[i]['thirdCount'] = count3
+      ticketState[i]['totalCount'] = count1 + count2 + count3
+    }
+    return ticketState
+  }
+
+  static updateTickets (ticketState, extracted) {
+    for (var i = 0; i < ticketState.length; i++) {
+      var array = ticketState[i]['array']
+      var index = array.indexOf(extracted)
+      if (index >= 0) {
+        var count1 = ticketState[i]['firstCount']
+        var count2 = ticketState[i]['secondCount']
+        var count3 = ticketState[i]['thirdCount']
+        if (index >= 0 && index < 5) {
+          count1 = count1 - 1
+          ticketState[i]['firstCount'] = count1
+        }
+        else if (index >= 5 && index < 10) {
+          count2 = count2 - 1
+          ticketState[i]['secondCount'] = count2
+        }
+        else if (index >= 10 && index < 15) {
+          count3 = count3 - 1
+          ticketState[i]['thirdCount'] = count3
+        }
+        ticketState[i]['totalCount'] = count1 + count2 + count3
+      }
+    }
+    return ticketState
+  }
+
   static checkTableCinquina (extractedNumbers, lastNumber) {
     var minMissing = 99
     var missing = -1

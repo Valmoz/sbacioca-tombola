@@ -91,6 +91,7 @@ export default {
       // OPTIONS
       isSmorfiaEnabled: false,
       checkTableWinnings: true,
+      checkTicketsWinnings: true,
       // END OPTIONS
       matchStart: '',
       matchState: 'none',
@@ -101,6 +102,7 @@ export default {
       remainingNumbers: [],
       showNumberCard: false,
       lastExtracted: 0,
+      ticketState: [],
       snackbar: {},
       cardTimeout: {}
     }
@@ -134,6 +136,7 @@ export default {
       this.matchStart = timestamp
       this.matchState = 'open'
       this.matchPhase = 1
+      this.initTickets()
       db.save()
     },
     legacyMatch: function () {
@@ -144,9 +147,49 @@ export default {
       this.matchStart = lastMatch.timestamp
       this.matchState = lastMatch.state
       this.matchPhase = lastMatch.phase
+      this.initTickets()
+      this.prepareTickets(this.extractedNumbers)
       this.initialized = true
       var array = this.initLegacyArray(this.extractedNumbers)
       this.remainingNumbers = this.shuffle(array)
+    },
+    initTickets: function () {
+      var tickets = this.$store.state.tickets
+      var maxId = tickets.maxId
+      var ticketState = []
+      for (var i = 0; i < maxId; i++) {
+        var ticket = tickets.get(i)
+        if (ticket) {
+          var array = ticket['array']
+          if (this.isValidTicket(array)) {
+            var ticketBody = {}
+            ticketBody['name'] = ticket['name']
+            ticketBody['array'] = array.map(Number)
+            ticketBody['firstCount'] = 5
+            ticketBody['secondCount'] = 5
+            ticketBody['thirdCount'] = 5
+            ticketBody['totalCount'] = 15
+            ticketState.push(ticketBody)
+          }
+        }
+      }
+      this.ticketState = ticketState
+    },
+    prepareTickets: function (extracted) {
+      this.ticketState = NumberChecker.prepareTickets(this.ticketState, extracted)
+    },
+    isValidTicket: function (ticket) {
+      // A ticket must have a generic string name and a sequence of 15 numbers
+      if (ticket.length !== 15) {
+        return false
+      }
+      for (var i = 0; i < 15; i++) {
+        var number = ticket[i]
+        if (isNaN(number)) {
+          return false
+        }
+      }
+      return true
     },
     initArray: function () {
       var array = []
@@ -228,6 +271,10 @@ export default {
     },
     checkTickets: function () {
       var self = this
+
+      // TODO MODIFY
+      NumberChecker.updateTickets(self.ticketState, self.lastExtracted)
+
       if (self.matchPhase === 1) {
         var check = NumberChecker.checkTableCinquina(self.extractedNumbers, self.lastExtracted)
         if (check.result) {
