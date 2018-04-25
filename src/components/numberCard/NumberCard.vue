@@ -1,10 +1,10 @@
 <template>
   <div class="mdc-card demo-card demo-card--small mdc-elevation--z24" @click="closeCard">
-    <section class="mdc-card__media" style="display:flex;justify-content:center;align-items:center;">
-      <h1 class="mdc-card__title mdc-card__title--large extracted-number">{{extractedNumber}}</h1>
+    <section class="mdc-card__media mdc-theme--secondary-bg" style="display:flex;justify-content:center;align-items:center;">
+      <h1 class="mdc-card__title mdc-card__title--large mdc-typography extracted-number">{{extractedNumber}}</h1>
     </section>
-    <section class="mdc-card__actions" style="display:flex;justify-content:center;align-items:center;">
-      <h2 class="mdc-card__subtitle extracted-number-text">{{getText(extractedNumber)}}</h2>
+    <section class="mdc-card__actions mdc-theme--background" style="display:flex;justify-content:center;align-items:center;">
+      <h2 class="mdc-card__subtitle mdc-typography extracted-number-text">{{getText(extractedNumber)}}</h2>
     </section>
   </div>
 </template>
@@ -26,8 +26,7 @@ export default {
     getText: function (number) {
       if (this.isSmorfiaEnabled) {
         return numbersSmorfia[number]
-      }
-      else {
+      } else {
         return numbersText[number]
       }
     },
@@ -231,14 +230,20 @@ var numbersText = {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss" scoped>
+@import "@material/card/mdc-card";
+@import "@material/typography/mdc-typography";
+@import "@material/theme/mdc-theme";
+</style>
+
 <style scoped>
 
 .mdc-card__media {
-  background-color: var(--mdc-theme-secondary);
+  /*background-color: var(--mdc-theme-secondary);*/
   height: 80%;
 }
 .mdc-card__actions {
-  background-color: var(--mdc-theme-background);
+  /*background-color: var(--mdc-theme-background);*/
   height: 20%;
 }
 .demo-card {

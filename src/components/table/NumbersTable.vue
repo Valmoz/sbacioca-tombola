@@ -48,5 +48,9 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss" scoped>
+@import "@material/grid-list/mdc-grid-list";
+</style>
+
 <style scoped>
 </style>

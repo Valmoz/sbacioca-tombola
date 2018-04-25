@@ -1,31 +1,31 @@
 <template>
-  <!-- Don't drop "q-app" class -->
-  <div id="q-app">
+  <!-- Don't drop "app" class -->
+  <div id="app">
     <div class="mdc-toolbar mdc-toolbar--fixed">
       <div class="mdc-toolbar__row">
         <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
-          <button class="app-menu material-icons mdc-toolbar__icon--menu">menu</button>
+          <button class="app-menu material-icons mdc-toolbar__menu-icon">menu</button>
           <span class="mdc-toolbar__title catalog-title">Sbacioca! Tombola</span>
         </section>
       </div>
     </div>
 
-    <aside class="mdc-temporary-drawer">
-      <nav class="mdc-temporary-drawer__drawer">
-        <header class="mdc-temporary-drawer__header">
-          <div class="mdc-temporary-drawer__header-content mdc-theme--primary-bg mdc-theme--text-primary-on-primary">
+    <aside class="mdc-drawer mdc-drawer--temporary mdc-typography">
+      <nav class="mdc-drawer__drawer">
+        <header class="mdc-drawer__header">
+          <div class="mdc-drawer__header-content mdc-theme--primary-bg mdc-theme--on-primary">
             Sbacioca! Tombola
           </div>
         </header>
-        <nav class="mdc-temporary-drawer__content mdc-list-group">
+        <nav class="mdc-drawer__content mdc-list-group">
           <div class="mdc-list">
             <a class="mdc-list-item" href="#"  @click="mainNav($event)"
-              v-bind:class="{ 'mdc-temporary-drawer--selected': isMain }">
-              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">bubble_chart</i>Gioca
+              v-bind:class="{ 'mdc-list-item--selected': isMain }">
+              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">bubble_chart</i>Gioca
             </a>
             <a class="mdc-list-item" href="#" @click="historyNav($event)"
-              v-bind:class="{ 'mdc-temporary-drawer--selected': isHistory }">
-              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">history</i>Storico
+              v-bind:class="{ 'mdc-list-item--selected': isHistory }">
+              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">history</i>Storico
             </a>
           </div>
 
@@ -33,12 +33,12 @@
 
           <div class="mdc-list">
             <a class="mdc-list-item" href="#" @click="settingsNav($event)"
-              v-bind:class="{ 'mdc-temporary-drawer--selected': isSettings }">
-              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">settings</i>Impostazioni
+              v-bind:class="{ 'mdc-list-item--selected': isSettings }">
+              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">settings</i>Impostazioni
             </a>
             <a class="mdc-list-item" href="#" @click="loadNav($event)"
-              v-bind:class="{ 'mdc-temporary-drawer--selected': isLoad }">
-              <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">input</i>Carica Cartelle
+              v-bind:class="{ 'mdc-list-item--selected': isLoad }">
+              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">input</i>Carica Cartelle
             </a>
           </div>
         </nav>
@@ -128,7 +128,7 @@ export default {
   },
   mounted () {
     var self = this
-    var drawerEl = document.querySelector('.mdc-temporary-drawer')
+    var drawerEl = document.querySelector('.mdc-drawer')
     self.drawer = new MDCTemporaryDrawer(drawerEl)
     document.querySelector('.app-menu').addEventListener('click', function () {
       self.drawer.open = true
@@ -160,7 +160,7 @@ export default {
 body {
   height: calc(100% - 64px);
 }
-#q-app {
+#app {
   height: 100%;
 }
 .app-body {
@@ -173,4 +173,12 @@ body {
   overflow: auto;
   height: 100%
 }
+</style>
+
+<style lang="scss" scoped>
+@import "@material/toolbar/mdc-toolbar";
+@import "@material/drawer/mdc-drawer";
+@import "@material/list/mdc-list";
+@import "@material/theme/mdc-theme";
+@import "@material/typography/mdc-typography";
 </style>

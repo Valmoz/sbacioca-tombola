@@ -9,14 +9,14 @@
       <th class="cinquina-header" colspan="5">Cinquina 2</th>
       <th class="cinquina-header" colspan="5">Cinquina 3</th>
     </tr>
-    <tr>
-      <th v-for="label in header">{{label}}</th>
+    <!--<tr>
+      <th v-for="(label, index) in header">{{label}}</th>
     </tr>
-    <template v-for="ticket in loadedTickets">
+    <template v-for="(ticket, index) in loadedTickets" :key="ticket.name">
       <tr v-if="isValidTicket(ticket)">
-        <td v-for="field in ticket">{{field}}</td>
+        <td v-for="(field, index) in ticket">{{field}}</td>
       </tr>
-    </template>
+    </template>-->
   </table>
 </div>
 </template>

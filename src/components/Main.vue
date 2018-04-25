@@ -209,7 +209,9 @@ export default {
     },
     shuffle: function (array) {
       // https://bost.ocks.org/mike/shuffle/
-      var m = array.length, t, i
+      var m = array.length
+      var t
+      var i
       // While there remain elements to shuffle…
       while (m) {
         // Pick a remaining element…
@@ -287,17 +289,14 @@ export default {
             }
           }
           self.snackbar.show(dataObj)
-        }
-        else {
+        } else {
           console.log('Left to cinquina: ' + check.missing)
         }
-      }
-      else {
+      } else {
         check = NumberChecker.checkTableTombola(self.extractedNumbers, self.lastExtracted)
         if (check.result) {
           console.log('TOMBOLA!!! Numbers: ' + check.numbers)
-        }
-        else {
+        } else {
           console.log('Left to tombola: ' + check.missing)
         }
       }
@@ -330,6 +329,13 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+<style lang="scss" scoped>
+@import "@material/button/mdc-button";
+@import "@material/list/mdc-list";
+@import "@material/snackbar/mdc-snackbar";
+@import "@material/layout-grid/mdc-layout-grid";
+</style>
+
 <style scoped>
 .main-list {
   /*padding-top: 20%;*/

@@ -27,12 +27,10 @@ export class NumberChecker {
         if (index >= 0 && index < 5) {
           count1 = count1 - 1
           ticketState[i]['firstCount'] = count1
-        }
-        else if (index >= 5 && index < 10) {
+        } else if (index >= 5 && index < 10) {
           count2 = count2 - 1
           ticketState[i]['secondCount'] = count2
-        }
-        else if (index >= 10 && index < 15) {
+        } else if (index >= 10 && index < 15) {
           count3 = count3 - 1
           ticketState[i]['thirdCount'] = count3
         }
