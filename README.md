@@ -2,6 +2,8 @@
 
 > A Tombola App.
 
+Vue.js app merged into Electron thanks to: https://dev.to/lexmartinez/creating-a-simple-ocr-application-with-electron-vuejs--tesseractjs-bnk
+
 ## Build Setup
 
 ``` bash
@@ -10,6 +12,9 @@ npm install
 
 # serve with hot reload at localhost:8080
 npm run dev
+
+# Run the app within Electron
+npm start
 
 # build for production with minification
 npm run build

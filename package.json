@@ -4,9 +4,10 @@
   "description": "A Tombola App.",
   "author": "Mauro Valota",
   "private": true,
+  "main": "index.js",
   "scripts": {
+    "start": "concurrently --kill-others \"npm run dev\" \"electron .\"",
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-    "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "node build/build.js"
   },
@@ -37,8 +38,10 @@
     "babel-preset-env": "^1.3.2",
     "babel-preset-stage-2": "^6.22.0",
     "chalk": "^2.0.1",
+    "concurrently": "^3.5.1",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.11",
+    "electron": "^1.8.6",
     "eslint": "^4.15.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-friendly-formatter": "^3.0.0",
@@ -77,10 +80,5 @@
   "engines": {
     "node": ">= 6.0.0",
     "npm": ">= 3.0.0"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ]
+  }
 }
